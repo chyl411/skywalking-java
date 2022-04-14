@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.apm.agent.core.context;
 
-import java.util.Arrays;
 import org.apache.skywalking.apm.agent.core.boot.BootService;
 import org.apache.skywalking.apm.agent.core.boot.DefaultImplementor;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
@@ -29,7 +28,6 @@ import org.apache.skywalking.apm.agent.core.conf.dynamic.watcher.SpanLimitWatche
 import org.apache.skywalking.apm.agent.core.remote.GRPCChannelListener;
 import org.apache.skywalking.apm.agent.core.remote.GRPCChannelManager;
 import org.apache.skywalking.apm.agent.core.remote.GRPCChannelStatus;
-import org.apache.skywalking.apm.agent.core.sampling.SamplingService;
 import org.apache.skywalking.apm.util.StringUtil;
 
 @DefaultImplementor
@@ -74,25 +72,8 @@ public class ContextManagerExtendService implements BootService, GRPCChannelList
 
     public AbstractTracerContext createTraceContext(String operationName, boolean forceSampling) {
         AbstractTracerContext context;
-        /*
-         * Don't trace anything if the backend is not available.
-         */
-        if (!Config.Agent.KEEP_TRACING && GRPCChannelStatus.DISCONNECT.equals(status)) {
-            return new IgnoredTracerContext();
-        }
 
-        int suffixIdx = operationName.lastIndexOf(".");
-        if (suffixIdx > -1 && Arrays.stream(ignoreSuffixArray)
-                                    .anyMatch(a -> a.equals(operationName.substring(suffixIdx)))) {
-            context = new IgnoredTracerContext();
-        } else {
-            SamplingService samplingService = ServiceManager.INSTANCE.findService(SamplingService.class);
-            if (forceSampling || samplingService.trySampling(operationName)) {
-                context = new TracingContext(operationName, spanLimitWatcher);
-            } else {
-                context = new IgnoredTracerContext();
-            }
-        }
+        context = new TracingContext(operationName, spanLimitWatcher);
 
         return context;
     }

@@ -25,6 +25,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.DeclaredInstanceM
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
+import org.apache.skywalking.apm.agent.core.plugin.match.RegexMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.logical.LogicalMatchOperation;
 import org.apache.skywalking.apm.util.StringUtil;
 
@@ -33,6 +34,7 @@ import static net.bytebuddy.matcher.ElementMatchers.isPublic;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.not;
 import static org.apache.skywalking.apm.agent.core.plugin.match.ClassAnnotationMatch.byClassAnnotationMatch;
+import static org.apache.skywalking.apm.agent.core.plugin.match.PrefixMatch.nameStartsWith;
 import static org.apache.skywalking.apm.agent.core.plugin.match.RegexMatch.byRegexMatch;
 import static org.apache.skywalking.apm.plugin.spring.annotations.SpringAnnotationConfig.Plugin.SpringAnnotation.CLASSNAME_MATCH_REGEX;
 
@@ -73,7 +75,11 @@ public abstract class AbstractSpringBeanInstrumentation extends ClassInstanceMet
     @Override
     protected ClassMatch enhanceClass() {
         if (StringUtil.isEmpty(CLASSNAME_MATCH_REGEX)) {
-            return byClassAnnotationMatch(getEnhanceAnnotation());
+            return LogicalMatchOperation.and(
+                    byClassAnnotationMatch(getEnhanceAnnotation()),
+                    nameStartsWith("cn.ztessc"),
+                    RegexMatch.byRegexMatch("^((?!dto).)*$"),
+                    LogicalMatchOperation.not(byClassAnnotationMatch("org.aspectj.lang.annotation.Aspect")));
         } else {
             return LogicalMatchOperation.and(
                 byRegexMatch(CLASSNAME_MATCH_REGEX.split(",")),

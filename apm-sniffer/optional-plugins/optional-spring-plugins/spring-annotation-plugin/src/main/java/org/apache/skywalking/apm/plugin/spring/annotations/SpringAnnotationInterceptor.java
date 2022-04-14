@@ -18,33 +18,57 @@
 
 package org.apache.skywalking.apm.plugin.spring.annotations;
 
-import java.lang.reflect.Method;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
-import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
+import org.apache.skywalking.apm.agent.core.logging.api.ILog;
+import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
+import org.slf4j.Logger;
+
+import java.lang.reflect.Method;
 
 public class SpringAnnotationInterceptor implements InstanceMethodsAroundInterceptor {
+    public static Logger ZTE_LOGGER = null;
+    private static final ILog LOGGER = LogManager.getLogger(ContextManager.class);
+
+    public static void initLogger() {
+        try {
+            ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+            Class<?> loggerClazz = contextClassLoader.loadClass("org.slf4j.impl.StaticLoggerBinder");
+            Method getSingleton = loggerClazz.getMethod("getSingleton");
+            Object object = getSingleton.invoke(null);
+            Method getLoggerFactory = loggerClazz.getMethod("getLoggerFactory");
+            Object factory = getLoggerFactory.invoke(object);
+
+            Class<?> factoryClazz = contextClassLoader.loadClass("org.slf4j.ILoggerFactory");
+            Method getLogger = factoryClazz.getMethod("getLogger", String.class);
+            ZTE_LOGGER = (org.slf4j.Logger) getLogger.invoke(factory, ContextManager.class.getName());
+        } catch (Exception e) {
+            LOGGER.error("logback init failed", e);
+        }
+    }
+
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
-        String operationName = objInst.getClass().getName() + "." + method.getName();
-        AbstractSpan span = ContextManager.createLocalSpan(operationName);
-        span.setComponent(ComponentsDefine.SPRING_ANNOTATION);
+        if (ZTE_LOGGER == null) {
+            initLogger();
+        }
+        // do not log the spring cglib enhanced classes, which simple recognized as contains $$
+        if (ZTE_LOGGER != null) {
+            ZTE_LOGGER.info("{}", method.getDeclaringClass().getName() + "#" + method.getName());
+        }
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
-        ContextManager.stopSpan();
         return ret;
     }
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
-        ContextManager.activeSpan().log(t);
     }
 }
