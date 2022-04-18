@@ -96,6 +96,9 @@ public class InstMethodsInter {
             try {
                 ret = interceptor.afterMethod(targetObject, method, allArguments, method.getParameterTypes(), ret);
             } catch (Throwable t) {
+                if (t != null && t.getMessage() != null && t.getMessage().startsWith("throws:")) {
+                    throw new RuntimeException(t.getMessage());
+                }
                 LOGGER.error(t, "class[{}] after method[{}] intercept failure", obj.getClass(), method.getName());
             }
         }
