@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.apm.plugin.spring.annotations;
 
-import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
@@ -30,7 +29,7 @@ import java.lang.reflect.Method;
 
 public class SpringAnnotationInterceptor implements InstanceMethodsAroundInterceptor {
     public static Logger ZTE_LOGGER = null;
-    private static final ILog LOGGER = LogManager.getLogger(ContextManager.class);
+    private static final ILog LOGGER = LogManager.getLogger("sw");
 
     public static void initLogger() {
         try {
@@ -43,7 +42,7 @@ public class SpringAnnotationInterceptor implements InstanceMethodsAroundInterce
 
             Class<?> factoryClazz = contextClassLoader.loadClass("org.slf4j.ILoggerFactory");
             Method getLogger = factoryClazz.getMethod("getLogger", String.class);
-            ZTE_LOGGER = (org.slf4j.Logger) getLogger.invoke(factory, ContextManager.class.getName());
+            ZTE_LOGGER = (org.slf4j.Logger) getLogger.invoke(factory, "sw");
         } catch (Exception e) {
             LOGGER.error("logback init failed", e);
         }
