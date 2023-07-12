@@ -72,6 +72,7 @@ public abstract class AbstractSpringBeanInstrumentation extends ClassInstanceMet
         };
     }
 
+
     @Override
     protected ClassMatch enhanceClass() {
         if (StringUtil.isEmpty(CLASSNAME_MATCH_REGEX)) {

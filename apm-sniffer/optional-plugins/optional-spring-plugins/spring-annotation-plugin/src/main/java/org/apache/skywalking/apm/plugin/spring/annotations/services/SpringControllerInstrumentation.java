@@ -24,6 +24,7 @@ public class SpringControllerInstrumentation extends AbstractSpringBeanInstrumen
 
     public static final String ENHANCE_ANNOTATION = "org.springframework.stereotype.Controller";
 
+
     @Override
     protected String getEnhanceAnnotation() {
         return ENHANCE_ANNOTATION;
