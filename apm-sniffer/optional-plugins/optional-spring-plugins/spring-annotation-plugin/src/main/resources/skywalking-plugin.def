@@ -18,3 +18,4 @@ spring-annotation=org.apache.skywalking.apm.plugin.spring.annotations.bean.Sprin
 spring-annotation=org.apache.skywalking.apm.plugin.spring.annotations.component.SpringComponentInstrumentation
 spring-annotation=org.apache.skywalking.apm.plugin.spring.annotations.repository.SpringRepositoryInstrumentation
 spring-annotation=org.apache.skywalking.apm.plugin.spring.annotations.services.SpringServicesInstrumentation
+spring-annotation=org.apache.skywalking.apm.plugin.spring.annotations.services.SpringControllerInstrumentation

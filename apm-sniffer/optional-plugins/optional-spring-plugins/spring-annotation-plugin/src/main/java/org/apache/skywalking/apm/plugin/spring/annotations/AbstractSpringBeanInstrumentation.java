@@ -77,8 +77,9 @@ public abstract class AbstractSpringBeanInstrumentation extends ClassInstanceMet
         if (StringUtil.isEmpty(CLASSNAME_MATCH_REGEX)) {
             return LogicalMatchOperation.and(
                     byClassAnnotationMatch(getEnhanceAnnotation()),
-                    nameStartsWith("cn.ztessc"),
+                    LogicalMatchOperation.or(nameStartsWith("cn.ztessc"), nameStartsWith("com.zte"), nameStartsWith("com.bstek")),
                     RegexMatch.byRegexMatch("^((?!dto).)*$"),
+                    LogicalMatchOperation.not(nameStartsWith("cn.ztessc.common")),
                     LogicalMatchOperation.not(byClassAnnotationMatch("org.aspectj.lang.annotation.Aspect")));
         } else {
             return LogicalMatchOperation.and(
