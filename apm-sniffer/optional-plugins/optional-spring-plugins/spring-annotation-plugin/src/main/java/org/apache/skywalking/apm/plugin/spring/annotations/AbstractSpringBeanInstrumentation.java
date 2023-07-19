@@ -90,5 +90,4 @@ public abstract class AbstractSpringBeanInstrumentation extends ClassInstanceMet
     }
 
     protected abstract String getEnhanceAnnotation();
-
 }

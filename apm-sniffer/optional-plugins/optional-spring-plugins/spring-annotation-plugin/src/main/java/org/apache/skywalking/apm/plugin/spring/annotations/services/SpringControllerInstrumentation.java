@@ -22,7 +22,7 @@ import org.apache.skywalking.apm.plugin.spring.annotations.AbstractSpringBeanIns
 
 public class SpringControllerInstrumentation extends AbstractSpringBeanInstrumentation {
 
-    public static final String ENHANCE_ANNOTATION = "org.springframework.stereotype.Controller";
+    public static final String ENHANCE_ANNOTATION = "org.springframework.web.bind.annotation.RestController";
 
     @Override
     protected String getEnhanceAnnotation() {
